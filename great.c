@@ -3,12 +3,8 @@ int main()
 {
 
     int first, second, third;
-    printf("Enter the first number = ");
-    scanf("%d", &first);
-    printf("Enter the second number = ");
-    scanf("%d", &second);
-    printf("Enter the third number = ");
-    scanf("%d", &third);
+    printf("Enter the first numbers = ");
+    scanf("%d%d%d", &first, &second, &third);
 
     if (first > second)
     {
