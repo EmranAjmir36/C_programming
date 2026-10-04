@@ -1,8 +1,8 @@
 #include <stdio.h>
-int main()
-{
 
-    int number, positive, negative, zero;
+int main(void)
+{
+    int number;
 
     printf("Enter the number = ");
     scanf("%d", &number);
