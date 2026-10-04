@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Run a compiled program inside Docker.
+#   ./run hello [args...]
+cd "$(dirname "$0")"
+. .docker/lib.sh
+
+if [ $# -eq 0 ]; then
+  printf '%s\n' "  ${BOLD}usage:${RESET} ./run ${CYAN}program${RESET} ${DIM}[args…]${RESET}" >&2
+  exit 1
+fi
+
+prog="${1#./}"
+prog="${prog%.c}"
+shift
+
+if [ ! -f "$prog" ]; then
+  fail "No program called ${BOLD}$prog${RESET}"
+  [ -f "$prog.c" ] && hint "Compile it first: ./gcc $prog.c"
+  exit 1
+fi
+
+ensure_image
+echo
+rule "▶ $prog"
+echo
+
+start=$(now)
+in_container "./$prog" "$@"
+code=$?
+took=$(elapsed "$start")
+
+echo
+echo
+rule
+if [ "$code" -eq 0 ]; then
+  ok "Finished ${DIM}in ${took}${RESET}"
+else
+  fail "Exited with code ${BOLD}${code}${RESET} ${DIM}after ${took}${RESET}"
+fi
+echo
+exit "$code"

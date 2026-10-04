@@ -1,2 +1,12 @@
-*.exe
-*.json
+# Compiled programs have no extension, so ignore everything by default...
+*
+
+# ...and only track these:
+!*/
+!*.c
+!*.h
+!*.md
+!.gitignore
+!gcc
+!run
+!.docker/*

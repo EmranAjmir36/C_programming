@@ -1,0 +1,11 @@
+name: c_programming
+
+services:
+  c:
+    build: .
+    image: c_programming:latest
+    volumes:
+      - ..:/work
+    working_dir: /work
+    stdin_open: true
+    tty: true

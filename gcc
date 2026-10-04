@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Compile C programs inside Docker.
+#   ./gcc hello.c          -> ./hello
+#   ./gcc hello.c -lm      -> ./hello (extra flags passed to gcc)
+#   ./gcc a.c -o prog      -> ./prog
+cd "$(dirname "$0")"
+. .docker/lib.sh
+
+if [ $# -eq 0 ]; then
+  printf '%s\n' "  ${BOLD}usage:${RESET} ./gcc ${CYAN}file.c${RESET} ${DIM}[gcc flags…]${RESET}" >&2
+  exit 1
+fi
+
+src=""; out=""; prev=""
+for a in "$@"; do
+  [ "$prev" = "-o" ] && out="$a"
+  [ -z "$src" ] && [[ "$a" == *.c ]] && src="$a"
+  prev="$a"
+done
+
+if [ -n "$src" ] && [ ! -f "$src" ]; then
+  fail "Can't find ${BOLD}$src${RESET}"
+  exit 1
+fi
+
+args=("$@")
+if [ -z "$out" ] && [ -n "$src" ]; then
+  out="${src%.c}"
+  args+=(-o "$out")
+fi
+
+ensure_image
+[ -t 2 ] && GCC_COLOR=-fdiagnostics-color=always
+echo
+info "Compiling ${CYAN}${BOLD}${src:-$*}${RESET} ${DIM}→${RESET} ${GREEN}${BOLD}${out}${RESET}"
+
+start=$(now)
+if in_container gcc -Wall $GCC_COLOR "${args[@]}"; then
+  ok "Built ${GREEN}${BOLD}${out}${RESET} ${DIM}in $(elapsed "$start")${RESET}"
+  hint "Run it with: ./run ${out}"
+  echo
+else
+  fail "Compilation failed ${DIM}($(elapsed "$start"))${RESET}"
+  echo
+  exit 1
+fi
